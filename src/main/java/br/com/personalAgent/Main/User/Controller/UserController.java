@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,10 +34,10 @@ public class UserController {
             @ApiResponse(responseCode = "504", description = "Timeout na operação com o banco")
     })
     @PostMapping
-    public ResponseEntity<UserRequestDTO> create(@RequestBody @Valid UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> create(@RequestBody @Valid UserRequestDTO dto) {
         User userEntity = new User(dto.type(), dto.password(), dto.name(), dto.email());
         User created = userService.createUser(userEntity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserRequestDTO.fromEntity(created));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDTO.fromEntity(created));
     }
 
     @Operation(summary = "Busca usuário por ID")
@@ -71,13 +70,13 @@ public class UserController {
     @Operation(summary = "Atualiza um usuário existente")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or authentication.principal == #id.toString()")
-    public ResponseEntity<UserRequestDTO> update(
+    public ResponseEntity<UserResponseDTO> update(
             @PathVariable UUID id,
             @RequestBody @Valid UserRequestDTO dto
     ) {
         User user = new User(dto.type(), dto.password(), dto.name(), dto.email());
         User updatedUser = userService.updateUser(id, user);
-        return ResponseEntity.ok(UserRequestDTO.fromEntity(updatedUser));
+        return ResponseEntity.ok(UserResponseDTO.fromEntity(updatedUser));
     }
 
     @Operation(summary = "Remove um usuário por ID")
