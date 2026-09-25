@@ -1,6 +1,6 @@
 package br.com.personalAgent.Main.User.Service;
 
-import br.com.personalAgent.Main.Config.Excepiton.AccessDeniedException;
+import br.com.personalAgent.Main.Config.Excepiton.ForbiddenActionException;
 import br.com.personalAgent.Main.Config.Excepiton.BusinessException;
 import br.com.personalAgent.Main.Config.Excepiton.ResourceNotFoundException;
 import br.com.personalAgent.Main.Config.Excepiton.TimeoutException;
@@ -49,7 +49,7 @@ public class UserService {
         if (user.getType() == UserType.ADMIN) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (!isAdmin(auth)) {
-                throw new AccessDeniedException("Apenas administradores podem criar novos usuários do tipo ADMIN.");
+                throw new ForbiddenActionException("Apenas administradores podem criar novos usuários do tipo ADMIN.");
             }
         }
 
@@ -74,7 +74,7 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (!isAdmin(auth) && !isOwner(auth, id)) {
-            throw new AccessDeniedException("Você não possui permissão para visualizar os dados deste usuário.");
+            throw new ForbiddenActionException("Você não possui permissão para visualizar os dados deste usuário.");
         }
 
         try {
@@ -95,7 +95,7 @@ public class UserService {
 
         // Compara com o ID do usuário encontrado pelo e-mail
         if (!isAdmin(auth) && !isOwner(auth, user.getId())) {
-            throw new AccessDeniedException("Você não possui permissão para visualizar este usuário.");
+            throw new ForbiddenActionException("Você não possui permissão para visualizar este usuário.");
         }
 
         return user;
@@ -113,7 +113,7 @@ public class UserService {
     public List<User> findAllUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!isAdmin(auth)) {
-            throw new AccessDeniedException("Apenas administradores podem listar todos os usuários.");
+            throw new ForbiddenActionException("Apenas administradores podem listar todos os usuários.");
         }
         try {
             return userRepository.findAll();
@@ -128,7 +128,7 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (!isAdmin(auth) && !isOwner(auth, id)) {
-            throw new AccessDeniedException("Você não possui permissão para alterar os dados deste usuário.");
+            throw new ForbiddenActionException("Você não possui permissão para alterar os dados deste usuário.");
         }
 
         // Busca direto no repositório para evitar revalidar permissão dentro de findUserById
@@ -165,7 +165,7 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (!isAdmin(auth) && !isOwner(auth, id)) {
-            throw new AccessDeniedException("Você não possui permissão para excluir este usuário.");
+            throw new ForbiddenActionException("Você não possui permissão para excluir este usuário.");
         }
 
         User user = userRepository.findById(id)
