@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -14,48 +16,41 @@ import java.util.Map;
 public class SessionInterceptor implements HandlerInterceptor {
 
     private final SessionService sessionService;
+    private static final Logger log = LoggerFactory.getLogger(SessionInterceptor.class);
 
     public SessionInterceptor(SessionService sessionService) {
         this.sessionService = sessionService;
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        try{
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        String username = "Anonymous";
-        String userId = "N/A"; // Valor padrão se não estiver logado
+            String userId = "N/A";
 
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            userId = auth.getName();
+            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+                userId = auth.getName();
+            }
 
-            // Se o seu objeto Principal guarda o ID, extraia ele aqui.
-            // Exemplo: se o seu UserDetails customizado tem o método getId():
-            // Object principal = auth.getPrincipal();
-            // if (principal instanceof SeuUserCustomizado) {
-            //     userId = ((SeuUserCustomizado) principal).getId().toString();
-            // }
+            String method = request.getMethod(); // GET, POST, PUT, DELETE
+            String uri = request.getRequestURI();   // /users, etc.
+            String tokenBruto = request.getHeader("Authorization");
+            String token = (tokenBruto != null && tokenBruto.length() > 16)
+                    ? tokenBruto.substring(tokenBruto.length() - 16)
+                    : "No Token";
+
+            sessionService.registerSession(
+                    userId,
+                    token,
+                    method,
+                    uri,
+                    Map.of("remoteAddr", request.getRemoteAddr())
+            );
+
+        } catch (Exception e) {
+            log.error("Erro ao salvar log de sessão", e);
         }
-
-        String method = request.getMethod(); // GET, POST, PUT, DELETE
-        String uri = request.getRequestURI();   // /users, etc.
-        String token = request.getHeader("Authorization");
-
-        // ORDEM CORRETA DOS PARÂMETROS:
-        // 1. userId
-        // 2. user (nome)
-        // 3. token
-        // 4. actions (método HTTP)
-        // 5. resource (URI)
-        // 6. details
-        sessionService.registerSession(
-                userId,
-                token != null ? token : "No Token",
-                method,
-                uri,
-                Map.of("remoteAddr", request.getRemoteAddr())
-        );
-
         return true;
     }
 
