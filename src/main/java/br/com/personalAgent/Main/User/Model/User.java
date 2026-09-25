@@ -37,6 +37,13 @@ public class User {
     @Column(name = "USU_DATE_CREATE", updatable = false)
     private LocalDateTime create;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "USU_STR_STATUS", nullable = false)
+    private UserStatus status;
+
+    @Column(name = "USU_DATE_INACTIVATED")
+    private LocalDateTime inactivatedAt;
+
     protected User() {
     }
 
@@ -50,6 +57,7 @@ public class User {
     @PrePersist
     protected void onCreate() {
         this.create = LocalDateTime.now();
+        this.status = UserStatus.ACTIVE;
     }
 
     // Getters e Setters
@@ -85,12 +93,24 @@ public class User {
         return type;
     }
 
-    public void setType(UserType type) {
-        this.type = type;
-    }
-
     public LocalDateTime getCreate() {
         return create;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getInactivatedAt() {
+        return inactivatedAt;
+    }
+
+    public void setInactivatedAt(LocalDateTime inactivatedAt) {
+        this.inactivatedAt = inactivatedAt;
     }
 
 }

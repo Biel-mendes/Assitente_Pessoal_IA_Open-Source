@@ -1,6 +1,9 @@
 package br.com.personalAgent.Main.Component;
 
 import br.com.personalAgent.Main.Login.Service.TokenService;
+import br.com.personalAgent.Main.User.Model.User;
+import br.com.personalAgent.Main.User.Model.UserStatus;
+import br.com.personalAgent.Main.User.Repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,14 +17,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
+    private final UserRepository userRepository;
 
-    public SecurityFilter(TokenService tokenService) {
+    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
         this.tokenService = tokenService;
+        this.userRepository = userRepository;
     }
 
     // IGNORA O FILTRO PARA ROTAS PÚBLICAS
@@ -48,6 +54,12 @@ public class SecurityFilter extends OncePerRequestFilter {
                     Claims claims = tokenService.validateToken(token);
                     String userId = claims.getSubject();
                     String role = claims.get("role", String.class);
+
+                    User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
+                    if (user == null || user.getStatus() == UserStatus.INACTIVE) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
 
                     var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                     var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);

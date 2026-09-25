@@ -5,6 +5,7 @@ import br.com.personalAgent.Main.Config.Excepiton.BusinessException;
 import br.com.personalAgent.Main.Config.Excepiton.ResourceNotFoundException;
 import br.com.personalAgent.Main.Config.Excepiton.TimeoutException;
 import br.com.personalAgent.Main.User.Model.User;
+import br.com.personalAgent.Main.User.Model.UserStatus;
 import br.com.personalAgent.Main.User.Model.UserType;
 import br.com.personalAgent.Main.User.Repository.UserRepository;
 import jakarta.persistence.QueryTimeoutException;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -172,11 +174,27 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
         try {
-            userRepository.delete(user);
+            if (isAdmin(auth)) {
+                userRepository.delete(user);
+            } else {
+                user.setStatus(UserStatus.INACTIVE);
+                user.setInactivatedAt(LocalDateTime.now());
+                userRepository.save(user);
+            }
         } catch (QueryTimeoutException e) {
             throw new TimeoutException("Tempo limite da consulta excedido.");
         } catch (Exception e) {
             throw new ResourceNotFoundException("Erro ao deletar usuário.");
         }
     }
+
+    @Transactional
+    public void reactivateIfInactive(User user) {
+        if (user.getStatus() == UserStatus.INACTIVE) {
+            user.setStatus(UserStatus.ACTIVE);
+            user.setInactivatedAt(null);
+            userRepository.save(user);
+        }
+    }
+
 }

@@ -33,6 +33,7 @@ public class AuthController {
         if(!passwordEncoder.matches(body.password(), user.getPassword())) {
             return ResponseEntity.status(401).build();
         }
+        userService.reactivateIfInactive(user);
         String token = tokenService.generateToken(user);
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
