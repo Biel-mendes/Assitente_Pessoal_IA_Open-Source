@@ -24,11 +24,11 @@ public class Session {
 
     public Session() {}
 
-    public Session(String userId, String token, String actions, String resource, Map<String, Object> details) {
+    public Session(String userId, String actions, String resource, String token, Map<String, Object> details) {
         this.userId = userId;
-        this.token = token;
         this.actions = actions;
         this.resource = resource;
+        this.token = token;
         this.details = details;
     }
 

@@ -42,9 +42,9 @@ public class SessionInterceptor implements HandlerInterceptor {
 
             sessionService.registerSession(
                     userId,
-                    token,
                     method,
                     uri,
+                    token,
                     Map.of("remoteAddr", request.getRemoteAddr())
             );
 

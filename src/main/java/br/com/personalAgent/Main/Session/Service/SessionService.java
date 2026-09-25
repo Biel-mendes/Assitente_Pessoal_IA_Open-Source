@@ -25,14 +25,14 @@ public class SessionService {
                                 String token,
                                 Map<String, Object> details)
     {
-     try{
-        Session log = new Session(userId, actions, resource, token, details);
-        sessionRepository.save(log);
-     } catch (QueryTimeoutException e) {
-        throw new TimeoutException("Tempo limite excedido ao registrar sessão");
-     } catch (Exception e) {
-        throw new ResourceNotFoundException("Erro ao registrar sessão: " + e.getMessage());
-     }
+        try{
+            Session log = new Session(userId, actions, resource, token, details);
+            sessionRepository.save(log);
+        } catch (QueryTimeoutException e) {
+            throw new TimeoutException("Tempo limite excedido ao registrar sessão");
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Erro ao registrar sessão: " + e.getMessage());
+        }
     }
 
     public Optional<Session> findSessionById(String sessionId) {
