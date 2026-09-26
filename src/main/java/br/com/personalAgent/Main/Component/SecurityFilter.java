@@ -1,9 +1,8 @@
 package br.com.personalAgent.Main.Component;
 
 import br.com.personalAgent.Main.Login.Service.TokenService;
-import br.com.personalAgent.Main.User.Model.User;
 import br.com.personalAgent.Main.User.Model.UserStatus;
-import br.com.personalAgent.Main.User.Repository.UserRepository;
+import br.com.personalAgent.Main.User.Service.UserStatusCache;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,14 +22,13 @@ import java.util.UUID;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final UserRepository userRepository;
+    private final UserStatusCache userStatusCache;
 
-    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilter(TokenService tokenService, UserStatusCache userStatusCache) {
         this.tokenService = tokenService;
-        this.userRepository = userRepository;
+        this.userStatusCache = userStatusCache;
     }
 
-    // IGNORA O FILTRO PARA ROTAS PÚBLICAS
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -45,31 +43,34 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-            String token = recoverToken(request);
+        String token = recoverToken(request);
 
-            if (token != null){
-                try{
-                    Claims claims = tokenService.validateToken(token);
-                    String userId = claims.getSubject();
-                    String role = claims.get("role", String.class);
+        if (token != null){
+            try{
+                Claims claims = tokenService.validateToken(token);
+                String userId = claims.getSubject();
+                String role = claims.get("role", String.class);
 
-                    User user = userRepository.findById(UUID.fromString(userId)).orElse(null);
-                    if (user == null || user.getStatus() == UserStatus.INACTIVE) {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return;
-                    }
+                UUID id = UUID.fromString(userId);
+                UserStatus status = userStatusCache.getStatus(id);
 
-                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                    var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } catch (Exception e) {
+                if (status == null || status == UserStatus.INACTIVE) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
+
+                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                e.printStackTrace(); // temporário, pra diagnosticar
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
-            filterChain.doFilter(request, response);
+        }
+        filterChain.doFilter(request, response);
     }
 
     private String recoverToken(HttpServletRequest request) {

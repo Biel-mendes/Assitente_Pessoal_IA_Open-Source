@@ -24,11 +24,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserStatusCache userStatusCache;
 
     // Construtor único sem necessidade de @Autowired no atributo
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserStatusCache userStatusCache) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userStatusCache = userStatusCache;
     }
 
     // Métodos Auxiliares de Validação de Permissão
@@ -180,6 +182,7 @@ public class UserService {
                 user.setStatus(UserStatus.INACTIVE);
                 user.setInactivatedAt(LocalDateTime.now());
                 userRepository.save(user);
+                userStatusCache.evict(user.getId());
             }
         } catch (QueryTimeoutException e) {
             throw new TimeoutException("Tempo limite da consulta excedido.");
@@ -194,6 +197,7 @@ public class UserService {
             user.setStatus(UserStatus.ACTIVE);
             user.setInactivatedAt(null);
             userRepository.save(user);
+            userStatusCache.evict(user.getId());
         }
     }
 
