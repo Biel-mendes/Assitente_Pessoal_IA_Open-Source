@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,10 +24,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserStatusCache userStatusCache;
+    private final RateLimiter rateLimiter;
 
-    public SecurityFilter(TokenService tokenService, UserStatusCache userStatusCache) {
+    public SecurityFilter(TokenService tokenService, UserStatusCache userStatusCache, RateLimiter rateLimiter) {
         this.tokenService = tokenService;
         this.userStatusCache = userStatusCache;
+        this.rateLimiter = rateLimiter;
     }
 
     @Override
@@ -61,11 +64,15 @@ public class SecurityFilter extends OncePerRequestFilter {
                     return;
                 }
 
+                if (!rateLimiter.isAllowed(userId)) {
+                    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                    return;
+                }
+
                 var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                 var authentication = new UsernamePasswordAuthenticationToken(userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
-                e.printStackTrace(); // temporário, pra diagnosticar
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
