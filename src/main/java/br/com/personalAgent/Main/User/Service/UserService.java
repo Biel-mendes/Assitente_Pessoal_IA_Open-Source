@@ -4,10 +4,12 @@ import br.com.personalAgent.Main.Config.Excepiton.ForbiddenActionException;
 import br.com.personalAgent.Main.Config.Excepiton.BusinessException;
 import br.com.personalAgent.Main.Config.Excepiton.ResourceNotFoundException;
 import br.com.personalAgent.Main.Config.Excepiton.TimeoutException;
+import br.com.personalAgent.Main.User.Model.Record.UserFilter;
 import br.com.personalAgent.Main.User.Model.User;
 import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
 import br.com.personalAgent.Main.User.Model.Enum.UserType;
 import br.com.personalAgent.Main.User.Repository.UserRepository;
+import br.com.personalAgent.Main.User.Specification.UserSpecification;
 import jakarta.persistence.QueryTimeoutException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -112,15 +114,14 @@ public class UserService {
         return user;
     }
 
-    // FIND ALL
     @Transactional(readOnly = true)
-    public List<User> findAllUser() {
+    public List<User> searchUsers(UserFilter filter) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!isAdmin(auth)) {
-            throw new ForbiddenActionException("Apenas administradores podem listar todos os usuários.");
+            throw new ForbiddenActionException("Apenas administradores podem listar usuários.");
         }
         try {
-            return userRepository.findAll();
+            return userRepository.findAll(UserSpecification.withFilter(filter));
         } catch (QueryTimeoutException e) {
             throw new TimeoutException("Tempo limite da consulta excedido.");
         }

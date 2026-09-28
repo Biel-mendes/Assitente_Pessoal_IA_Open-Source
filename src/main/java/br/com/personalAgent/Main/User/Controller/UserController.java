@@ -1,5 +1,8 @@
 package br.com.personalAgent.Main.User.Controller;
 
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserType;
+import br.com.personalAgent.Main.User.Model.Record.UserFilter;
 import br.com.personalAgent.Main.User.Model.User;
 import br.com.personalAgent.Main.User.Model.DTO.UserRequestDTO;
 import br.com.personalAgent.Main.User.Model.DTO.UserResponseDTO;
@@ -56,11 +59,17 @@ public class UserController {
         return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
     }
 
-    @Operation(summary = "Lista todos os usuários")
+    @Operation(summary = "Lista usuários, com filtros dinâmicos opcionais")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponseDTO>> findAll() {
-        List<UserResponseDTO> users = userService.findAllUser()
+    public ResponseEntity<List<UserResponseDTO>> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) UserType type,
+            @RequestParam(required = false) UserStatus status
+    ) {
+        UserFilter filter = new UserFilter(name, email, type, status);
+        List<UserResponseDTO> users = userService.searchUsers(filter)
                 .stream()
                 .map(UserResponseDTO::fromEntity)
                 .toList();
