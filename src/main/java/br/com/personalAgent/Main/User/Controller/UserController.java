@@ -1,8 +1,8 @@
 package br.com.personalAgent.Main.User.Controller;
 
 import br.com.personalAgent.Main.User.Model.User;
-import br.com.personalAgent.Main.User.Model.UserRequestDTO;
-import br.com.personalAgent.Main.User.Model.UserResponseDTO;
+import br.com.personalAgent.Main.User.Model.DTO.UserRequestDTO;
+import br.com.personalAgent.Main.User.Model.DTO.UserResponseDTO;
 import br.com.personalAgent.Main.User.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

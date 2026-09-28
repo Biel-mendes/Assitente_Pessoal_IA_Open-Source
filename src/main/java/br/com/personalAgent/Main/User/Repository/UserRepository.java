@@ -1,7 +1,7 @@
 package br.com.personalAgent.Main.User.Repository;
 
 import br.com.personalAgent.Main.User.Model.User;
-import br.com.personalAgent.Main.User.Model.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

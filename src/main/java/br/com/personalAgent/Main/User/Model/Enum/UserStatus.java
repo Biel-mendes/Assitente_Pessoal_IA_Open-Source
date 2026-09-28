@@ -1,4 +1,4 @@
-package br.com.personalAgent.Main.User.Model;
+package br.com.personalAgent.Main.User.Model.Enum;
 
 public enum UserStatus {
     ACTIVE,

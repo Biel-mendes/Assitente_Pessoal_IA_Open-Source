@@ -1,7 +1,7 @@
 package br.com.personalAgent.Main.User.Service;
 
 import br.com.personalAgent.Main.User.Model.User;
-import br.com.personalAgent.Main.User.Model.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
 import br.com.personalAgent.Main.User.Repository.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.data.redis.core.StringRedisTemplate;

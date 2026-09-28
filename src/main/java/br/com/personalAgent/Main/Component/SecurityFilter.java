@@ -1,7 +1,7 @@
 package br.com.personalAgent.Main.Component;
 
 import br.com.personalAgent.Main.Login.Service.TokenService;
-import br.com.personalAgent.Main.User.Model.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
 import br.com.personalAgent.Main.User.Service.UserStatusCache;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

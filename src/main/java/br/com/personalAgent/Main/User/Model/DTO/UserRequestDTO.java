@@ -1,5 +1,7 @@
-package br.com.personalAgent.Main.User.Model;
+package br.com.personalAgent.Main.User.Model.DTO;
 
+import br.com.personalAgent.Main.User.Model.User;
+import br.com.personalAgent.Main.User.Model.Enum.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

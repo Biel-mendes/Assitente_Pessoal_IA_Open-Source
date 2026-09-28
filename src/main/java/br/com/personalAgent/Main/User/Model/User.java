@@ -1,5 +1,7 @@
 package br.com.personalAgent.Main.User.Model;
 
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

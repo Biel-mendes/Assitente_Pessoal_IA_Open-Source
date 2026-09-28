@@ -1,6 +1,6 @@
 package br.com.personalAgent.Main.User.Service;
 
-import br.com.personalAgent.Main.User.Model.UserStatus;
+import br.com.personalAgent.Main.User.Model.Enum.UserStatus;
 import br.com.personalAgent.Main.User.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
