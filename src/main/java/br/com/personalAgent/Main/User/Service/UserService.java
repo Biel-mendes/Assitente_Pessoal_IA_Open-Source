@@ -91,22 +91,6 @@ public class UserService {
         }
     }
 
-    // FIND BY EMAIL
-    @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        // Compara com o ID do usuário encontrado pelo e-mail
-        if (!isAdmin(auth) && !isOwner(auth, user.getId())) {
-            throw new ForbiddenActionException("Você não possui permissão para visualizar este usuário.");
-        }
-
-        return user;
-    }
-
     // FIND BY EMAIL (para uso somente interno)
     public User findUserByEmailAuth (String email){
         User user = userRepository.findByEmail(email)

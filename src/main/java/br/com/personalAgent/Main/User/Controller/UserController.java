@@ -51,14 +51,6 @@ public class UserController {
         return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
     }
 
-    @Operation(summary = "Busca usuário por E-mail")
-    @GetMapping("/email")
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal == #email")
-    public ResponseEntity<UserResponseDTO> findByEmail(@RequestParam("value") String email) {
-        User user = userService.findUserByEmail(email);
-        return ResponseEntity.ok(UserResponseDTO.fromEntity(user));
-    }
-
     @Operation(summary = "Lista usuários, com filtros dinâmicos opcionais")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
