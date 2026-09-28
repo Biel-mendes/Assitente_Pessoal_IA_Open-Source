@@ -11,6 +11,8 @@ import br.com.personalAgent.Main.User.Model.Enum.UserType;
 import br.com.personalAgent.Main.User.Repository.UserRepository;
 import br.com.personalAgent.Main.User.Specification.UserSpecification;
 import jakarta.persistence.QueryTimeoutException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -99,13 +101,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<User> searchUsers(UserFilter filter) {
+    public Page<User> searchUsers(UserFilter filter, Pageable pageable) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!isAdmin(auth)) {
             throw new ForbiddenActionException("Apenas administradores podem listar usuários.");
         }
         try {
-            return userRepository.findAll(UserSpecification.withFilter(filter));
+            return userRepository.findAll(UserSpecification.withFilter(filter), pageable);
         } catch (QueryTimeoutException e) {
             throw new TimeoutException("Tempo limite da consulta excedido.");
         }
