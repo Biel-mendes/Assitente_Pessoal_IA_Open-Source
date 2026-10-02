@@ -49,7 +49,7 @@ public class SecurityConfig {
                             "/webjars/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .requestMatchers("/error").permitAll()
                     .anyRequest().authenticated()
             )

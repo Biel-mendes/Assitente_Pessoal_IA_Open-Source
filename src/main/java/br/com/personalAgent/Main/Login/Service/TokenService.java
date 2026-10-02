@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -23,6 +24,7 @@ public class TokenService {
 
     public String generateToken(User user){
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("role", user.getType().name())
@@ -38,6 +40,11 @@ public class TokenService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    // logout
+    public void invalidateToken(String token) {
+        // Implementation for token invalidation
     }
 
 
